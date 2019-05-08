@@ -21,13 +21,13 @@
             "nodes": [
               {
                 "object": "text",
-                "text": "hyperlinks"
+                "text": "[hyperlinks]"
               }
             ]
           },
           {
             "object": "text",
-            "text": "!"
+            "text": " hola !"
           }
         ]
       },

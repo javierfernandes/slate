@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Editor, getEventTransfer } from 'slate-react'
 import { Value } from 'slate'
 
@@ -5,6 +6,42 @@ import React from 'react'
 import initialValue from './value.json'
 import isUrl from 'is-url'
 import { Button, Icon, Toolbar } from '../components'
+
+const schema = {
+  document: {
+    nodes: [{ match: { type: 'paragraph' } }],
+  },
+  blocks: {
+    paragraph: {
+      nodes: [
+        {
+          match: [{ object: 'text' }, { type: 'link' }],
+        },
+      ],
+      // normalize: (editor, error) => {
+      //   console.log('blocks.paragraph.normalize', JSON.stringify(error, null, 2))
+      // }
+    },
+  },
+  inlines: {
+    link: {
+      nodes: [
+        {
+          match: { object: 'text', text: /^\[.*\]$/ }
+        }
+      ],
+      normalize: (editor, error) => {
+        console.log('inlines.link.normalize', JSON.stringify(error, null, 2))
+        if (error.code == 'child_text_invalid') {
+          const key = error.node.key
+          const text = editor.value.document.getNode(error.child.key).text
+          
+          editor.replaceNodeByKey(key, { object: 'text', text })
+        }
+      }
+    },
+  }
+}
 
 /**
  * A change helper to standardize wrapping links.
@@ -85,6 +122,7 @@ class Links extends React.Component {
           </Button>
         </Toolbar>
         <Editor
+          schema={schema}
           placeholder="Enter some text..."
           ref={this.ref}
           value={this.state.value}
